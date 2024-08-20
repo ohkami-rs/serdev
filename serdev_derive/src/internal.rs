@@ -191,7 +191,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
                     for #target_ident #ty_generics
                         #where_clause
                     {
-                        type Error = ::core::string::String;
+                        type Error = #__todo__;
 
                         #[inline]
                         fn try_from(proxy: #proxy_ident #ty_generics) -> ::core::result::Result<Self, Self::Error> {
