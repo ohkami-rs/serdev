@@ -1,6 +1,6 @@
 use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote, ToTokens};
-use syn::{parse::Parse, punctuated::Punctuated, token, Attribute, Error, Generics, Ident, Item, ItemEnum, ItemStruct, LitStr, Visibility};
+use syn::{parse::Parse, punctuated::Punctuated, token, Attribute, Error, Generics, Ident, Item, ItemEnum, ItemStruct, LitStr};
 
 
 #[derive(Clone)]
@@ -26,12 +26,6 @@ impl ToTokens for Target {
     }
 }
 impl Target {
-    fn attrs(&self) -> &[Attribute] {
-        match self {
-            Self::Enum(e)   => &e.attrs,
-            Self::Struct(s) => &s.attrs
-        }
-    }
     fn attrs_mut(&mut self) -> &mut Vec<Attribute> {
         match self {
             Self::Enum(e)   => &mut e.attrs,
@@ -136,7 +130,7 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                         #where_clause
                     {
                         #[inline]
-                        fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+                        fn serialize<S>(&self, serializer: S) -> ::core::result::Result<S::Ok, S::Error>
                         where
                             S: ::serdev::__private__::serde::Serializer
                         {
@@ -182,7 +176,6 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
 
             let proxy_ident  = proxy.ident();
             let target_ident = target.ident();
-
             let proxy_type_lit = LitStr::new(
                 &quote!(#proxy_ident #ty_generics).to_string(),
                 Span::call_site()
@@ -194,14 +187,16 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
                     #[serde(crate = "::serdev::__private__::serde")]
                     #proxy
 
-                    impl #impl_generics ::std::convert::TryFrom<#proxy_ident #ty_generics>
+                    impl #impl_generics ::core::convert::TryFrom<#proxy_ident #ty_generics>
                     for #target_ident #ty_generics
                         #where_clause
                     {
-                        type Error = ::std::string::String;
-                        fn try_from(proxy: #proxy_ident #ty_generics) -> ::std::result::Result<Self, Self::Error> {
+                        type Error = ::core::string::String;
+
+                        #[inline]
+                        fn try_from(proxy: #proxy_ident #ty_generics) -> ::core::result::Result<Self, Self::Error> {
                             let this = unsafe {::core::mem::transmute(proxy)};
-                            let _: () = #validation(&this).map_err(|e|);
+                            let _: () = #validation(&this).map_err(|e| #__todo__)?;
                             Ok(this)
                         }
                     }
