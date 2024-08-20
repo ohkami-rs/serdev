@@ -1,0 +1,21 @@
+[package]
+name          = "serdev_derive"
+version       = "0.1.0"
+edition       = "2021"
+authors       = ["kanarus <kanarus786@gmail.com>"]
+documentation = "https://docs.rs/serdev_derive"
+homepage      = "https://crates.io/crates/serdev_derive"
+repository    = "https://github.com/kana-rus/serdev_derive"
+readme        = "../README.md"
+license       = "MIT"
+description   = "Serde with validation"
+keywords      = ["serde", "validation", "serialization", "no_std"]
+categories    = ["encoding", "no-std", "no-std::no-alloc"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = { version = "1.0" }
+quote       = { version = "1.0" }
+syn         = { version = "1.0", features = ["full"] }
