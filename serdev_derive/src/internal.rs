@@ -74,31 +74,6 @@ impl Target {
         }
         Ok(directives)
     }
-
-    fn make_proxy_impl_into_target(&self) -> (Target, TokenStream) {
-        let proxy_ident = format_ident!("__serdev_proxy_INTO_{}__", self.ident());
-
-        let mut proxy = self.clone();
-        *proxy.ident_mut() = proxy_ident;
-
-        let impl_into_target = {
-            todo!()
-        };
-
-        (proxy, impl_into_target)
-    }
-    fn make_proxy_impl_refrom_target(&self) -> (Target, TokenStream) {
-        let proxy_ident = format_ident!("__serdev_proxy_REF_FROM_{}__", self.ident());
-
-        let mut proxy = self.clone();
-        *proxy.ident_mut() = format_ident!("__serdev_proxy_{}__", self.ident());
-
-        let impl_refrom_target = {
-            todo!()
-        };
-
-        (proxy, impl_refrom_target)
-    }
 }
 
 struct Validation {
@@ -131,7 +106,8 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
             let validation = serde_directives.remove(validation_index);
             let validation = syn::parse2::<Validation>(validation)?.function;
 
-            let (mut proxy, impl_refrom_target) = target.make_proxy_impl_refrom_target();
+            let mut proxy = target.clone();
+            *proxy.ident_mut() = format_ident!("__serdev_proxy_Serialize_{}__", target.ident());
             let serde_attr = Attribute {
                 pound_token:   token::Pound::default(),
                 style:         syn::AttrStyle::Outer,
@@ -151,8 +127,6 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                     #[serde(crate = "::serdev::__private__::serde")]
                     #proxy
 
-                    #impl_refrom_target
-
                     impl #impl_generics ::serdev::__private__::serde::Serialize
                     for #target_ident #ty_generics
                         #where_clause
@@ -161,8 +135,9 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                         where
                             S: ::serdev::__private__::serde::Serializer
                         {
-                            let _: () = validation(&self).map_err(::serdev::__private__::serde::ser::Error::custom)?;
-                            <&#proxy_ident>::from(self).serialize(serializer)
+                            let _: () = #validation(&self).map_err(::serdev::__private__::serde::ser::Error::custom)?;
+                            let proxy: #proxy_ident #ty_generics = unsafe {::core::mem::transmute(self)};
+                            proxy.serialize(serializer)
                         }
                     }
                 };
