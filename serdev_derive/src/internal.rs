@@ -74,6 +74,31 @@ impl Target {
         }
         Ok(directives)
     }
+
+    fn make_proxy_impl_into_target(&self) -> (Target, TokenStream) {
+        let proxy_ident = format_ident!("__serdev_proxy_INTO_{}__", self.ident());
+
+        let mut proxy = self.clone();
+        *proxy.ident_mut() = proxy_ident;
+
+        let impl_into_target = {
+            todo!()
+        };
+
+        (proxy, impl_into_target)
+    }
+    fn make_proxy_impl_refrom_target(&self) -> (Target, TokenStream) {
+        let proxy_ident = format_ident!("__serdev_proxy_REF_FROM_{}__", self.ident());
+
+        let mut proxy = self.clone();
+        *proxy.ident_mut() = format_ident!("__serdev_proxy_{}__", self.ident());
+
+        let impl_refrom_target = {
+            todo!()
+        };
+
+        (proxy, impl_refrom_target)
+    }
 }
 
 struct Validation {
@@ -92,12 +117,12 @@ impl Parse for Validation {
 }
 
 pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
-    let mut t = syn::parse2::<Target>(input.clone())?;
+    let mut target = syn::parse2::<Target>(input.clone())?;
 
-    let generics = t.generics().clone();
+    let generics = target.generics().clone();
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let mut serde_directives = t.remove_serde_directives()?;
+    let mut serde_directives = target.remove_serde_directives()?;
 
     Ok(match serde_directives.iter().position(
         |d| d.to_string().starts_with("validate")
@@ -106,8 +131,7 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
             let validation = serde_directives.remove(validation_index);
             let validation = syn::parse2::<Validation>(validation)?.function;
 
-            let mut proxy = t.clone();
-            *proxy.ident_mut() = format_ident!("__serdev_proxy_{}__", t.ident());
+            let (mut proxy, impl_refrom_target) = target.make_proxy_impl_refrom_target();
             let serde_attr = Attribute {
                 pound_token:   token::Pound::default(),
                 style:         syn::AttrStyle::Outer,
@@ -115,11 +139,11 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                 path:          syn::parse_str("serde")?,
                 tokens:        quote![( #(#serde_directives),* )]
             };
-            proxy.attrs_mut().push(serde_attr.clone());
-            t.attrs_mut().push(serde_attr);
+            proxy .attrs_mut().push(serde_attr.clone());
+            target.attrs_mut().push(serde_attr);
 
-            let ident = t.ident();
-            let proxy_ident = proxy.ident();
+            let proxy_ident  = proxy.ident();
+            let target_ident = target.ident();
 
             quote! {
                 const _: () = {
@@ -127,16 +151,18 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                     #[serde(crate = "::serdev::__private__::serde")]
                     #proxy
 
-                    impl #impl_generics
-                        ::serdev::__private__::serde::Serialize
-                    for #ident #ty_generics
+                    #impl_refrom_target
+
+                    impl #impl_generics ::serdev::__private__::serde::Serialize
+                    for #target_ident #ty_generics
                         #where_clause
                     {
                         fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
                         where
                             S: ::serdev::__private__::serde::Serializer
                         {
-                            let proxy = ;
+                            let _: () = validation(&self).map_err(::serdev::__private__::serde::ser::Error::custom)?;
+                            <&#proxy_ident>::from(self).serialize(serializer)
                         }
                     }
                 };
@@ -148,14 +174,12 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                 #[derive(::serdev::__private__::serde::Serialize)]
                 #[serde(crate = "::serdev::__private__::serde")]
                 #[::serdev::__private__::consume]
-                #t
+                #target
             }
         }
     })
 }
 
 pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
-    Ok(quote! {
-        
-    })
+    todo!()
 }
