@@ -91,6 +91,17 @@ impl Parse for Validation {
     }
 }
 
+fn serde_attribute_of<T: ToTokens>(directives: impl IntoIterator<Item = T>) -> Attribute {
+    let directives = directives.into_iter();
+    Attribute {
+        pound_token:   token::Pound::default(),
+        style:         syn::AttrStyle::Outer,
+        bracket_token: token::Bracket::default(),
+        path:          syn::parse_str("serde").unwrap(),
+        tokens:        quote![( #(#directives),* )]
+    }
+}
+
 pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
     let mut target = syn::parse2::<Target>(input.clone())?;
 
@@ -108,15 +119,8 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
 
             let mut proxy = target.clone();
             *proxy.ident_mut() = format_ident!("__serdev_proxy_Serialize_{}__", target.ident());
-            let serde_attr = Attribute {
-                pound_token:   token::Pound::default(),
-                style:         syn::AttrStyle::Outer,
-                bracket_token: token::Bracket::default(),
-                path:          syn::parse_str("serde")?,
-                tokens:        quote![( #(#serde_directives),* )]
-            };
-            proxy .attrs_mut().push(serde_attr.clone());
-            target.attrs_mut().push(serde_attr);
+            proxy .attrs_mut().push(serde_attribute_of(serde_directives.clone()));
+            target.attrs_mut().push(serde_attribute_of(serde_directives));
 
             let proxy_ident  = proxy.ident();
             let target_ident = target.ident();
@@ -131,6 +135,7 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                     for #target_ident #ty_generics
                         #where_clause
                     {
+                        #[inline]
                         fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
                         where
                             S: ::serdev::__private__::serde::Serializer
@@ -156,5 +161,67 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
 }
 
 pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
-    todo!()
+    let mut target = syn::parse2::<Target>(input.clone())?;
+
+    let generics = target.generics().clone();
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    let mut serde_directives = target.remove_serde_directives()?;
+
+    Ok(match serde_directives.iter().position(
+        |d| d.to_string().starts_with("validate")
+    ) {
+        Some(validation_index) => {
+            let validation = serde_directives.remove(validation_index);
+            let validation = syn::parse2::<Validation>(validation)?.function;
+
+            let mut proxy = target.clone();
+            *proxy.ident_mut() = format_ident!("__serdev_proxy_Deserialize_{}__", target.ident());
+            proxy .attrs_mut().push(serde_attribute_of(serde_directives.clone()));
+            target.attrs_mut().push(serde_attribute_of(serde_directives));
+
+            let proxy_ident  = proxy.ident();
+            let target_ident = target.ident();
+
+            let proxy_type_lit = LitStr::new(
+                &quote!(#proxy_ident #ty_generics).to_string(),
+                Span::call_site()
+            );
+
+            quote! {
+                const _: () = {
+                    #[derive(::serdev::__private__::serde::Deserialize)]
+                    #[serde(crate = "::serdev::__private__::serde")]
+                    #proxy
+
+                    impl #impl_generics ::std::convert::TryFrom<#proxy_ident #ty_generics>
+                    for #target_ident #ty_generics
+                        #where_clause
+                    {
+                        type Error = ::std::string::String;
+                        fn try_from(proxy: #proxy_ident #ty_generics) -> ::std::result::Result<Self, Self::Error> {
+                            let this = unsafe {::core::mem::transmute(proxy)};
+                            let _: () = #validation(&this).map_err(|e|);
+                            Ok(this)
+                        }
+                    }
+
+                    #[derive(::serdev::__private__::serde::Deserialize)]
+                    #[serde(crate = "::serdev::__private__::serde")]
+                    #[serde(try_from = #proxy_type_lit)]
+                    #[::serdev::__private__::consume]
+                    #target
+                };
+            }
+        }
+
+        None => {
+            quote! {
+                #[derive(::serdev::__private__::serde::Deserialize)]
+                #[serde(crate = "::serdev::__private__::serde")]
+                #[::serdev::__private__::consume]
+                #target
+            }
+        }
+    })
 }
