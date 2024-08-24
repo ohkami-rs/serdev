@@ -5,20 +5,9 @@ use self::target::Target;
 use self::validate::Validate;
 
 use proc_macro2::{Span, TokenStream};
-use quote::{format_ident, quote, ToTokens};
-use syn::{token, Attribute, Error, LitStr};
+use quote::{format_ident, quote};
+use syn::{Error, LitStr};
 
-
-fn build_serde_attribute<T: ToTokens>(directives: impl IntoIterator<Item = T>) -> Attribute {
-    let directives = directives.into_iter();
-    Attribute {
-        pound_token:   token::Pound::default(),
-        style:         syn::AttrStyle::Outer,
-        bracket_token: token::Bracket::default(),
-        path:          syn::parse_str("serde").unwrap(),
-        tokens:        quote![( #(#directives),* )]
-    }
-}
 
 pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
     Ok(quote! {
@@ -35,19 +24,10 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
     let generics = target.generics().clone();
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let mut serde_directives = target.remove_serde_directives()?;
-
-    Ok(match serde_directives.iter().position(
-        |d| d.to_string().starts_with("validate")
-    ) {
-        Some(validator_index) => {
-            let validate = serde_directives.remove(validator_index);
-            let validate = syn::parse2::<Validate>(validate)?;
-
+    Ok(match Validate::take(target.attrs_mut()) {
+        Some(validate) => {
             let mut proxy = target.clone();
             *proxy.ident_mut() = format_ident!("serdev_proxy_{}", target.ident());
-            proxy .attrs_mut().push(build_serde_attribute(serde_directives.clone()));
-            target.attrs_mut().push(build_serde_attribute(serde_directives));
 
             let target_ident = target.ident();
             let proxy_ident  = proxy.ident();

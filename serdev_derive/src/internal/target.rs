@@ -1,6 +1,6 @@
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
-use syn::{parse::Parse, punctuated::Punctuated, token, Attribute, Error, Generics, Ident, Item, ItemEnum, ItemStruct};
+use syn::{parse::Parse, Attribute, Error, Generics, Ident, Item, ItemEnum, ItemStruct};
 
 
 #[derive(Clone)]
@@ -54,22 +54,5 @@ impl Target {
             Self::Enum(e)   => &mut e.ident,
             Self::Struct(s) => &mut s.ident
         }
-    }
-}
-
-impl Target {
-    pub(crate) fn remove_serde_directives(&mut self) -> Result<Vec<TokenStream>, Error> {
-        let mut directives = Vec::new(); {
-            let attrs = self.attrs_mut();
-            while let Some(i) = attrs.iter().position(
-                |attr| attr.path.get_ident().is_some_and(|i| i == "serde")
-            ) {
-                let serde_attr = attrs.remove(i);
-                directives.extend(serde_attr.parse_args_with(
-                    Punctuated::<TokenStream, token::Comma>::parse_terminated
-                )?)
-            }
-        }
-        Ok(directives)
     }
 }

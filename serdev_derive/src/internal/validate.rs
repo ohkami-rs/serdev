@@ -1,5 +1,5 @@
 use proc_macro2::{Span, TokenStream};
-use syn::{parse::Parse, spanned::Spanned, token, Error, Ident, LitStr};
+use syn::{parse::Parse, punctuated::Punctuated, spanned::Spanned, token, Attribute, Error, Ident, LitStr};
 
 
 mod keyword {
@@ -50,6 +50,26 @@ impl Parse for Validate {
         } else {
             Err(Error::new(Span::call_site(), "expected `validation = \"...\"` or `validation(by = \"...\", error = \"...\")`"))
         }
+    }
+}
+
+impl Validate {
+    pub(crate) fn take(attrs: &mut Vec<Attribute>) -> Result<Option<Self>, Error> {
+        for attr in attrs {
+            if !attr.path.get_ident().is_some_and(|i| i == "serde") {
+                let directives = attr.parse_args_with(
+                    Punctuated::<TokenStream, token::Comma>::parse_terminated
+                )?;
+                for directive in &directives {
+                    if directive.to_string().starts_with("validate") {
+                        let validate = syn::parse2(directive.clone())?;
+                        let ;
+                        return Ok(Some(validate))
+                    }
+                }
+            }
+        }
+        Ok(None)
     }
 }
 
