@@ -60,11 +60,20 @@ impl Validate {
                 let directives = attr.parse_args_with(
                     Punctuated::<TokenStream, token::Comma>::parse_terminated
                 )?;
-                for directive in &directives {
+                for (i, directive) in directives.iter().enumerate() {
                     if directive.to_string().starts_with("validate") {
-                        let validate = syn::parse2(directive.clone())?;
-                        let ;
-                        return Ok(Some(validate))
+                        attr.tokens = syn::parse_str(&{
+                            let mut others = String::new();
+                            for (j, directive) in directives.iter().enumerate() {
+                                if j != i {
+                                    others.push_str(&directive.to_string());
+                                    others.push(',')
+                                }
+                            }
+                            others.pop();
+                            others
+                        })?;
+                        return syn::parse2(directive.clone()).map(Some)
                     }
                 }
             }

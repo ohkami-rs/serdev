@@ -1,7 +1,8 @@
 use serdev::{Serialize, Deserialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", deny_unknown_fields)]
+#[serde(rename_all = "snake_case", deny_unknown_fields,)]
+#[serde()]
 struct User {
     name: String,
     age:  usize,

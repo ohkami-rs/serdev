@@ -24,7 +24,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
     let generics = target.generics().clone();
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    Ok(match Validate::take(target.attrs_mut()) {
+    Ok(match Validate::take(target.attrs_mut())? {
         Some(validate) => {
             let mut proxy = target.clone();
             *proxy.ident_mut() = format_ident!("serdev_proxy_{}", target.ident());
