@@ -1,0 +1,44 @@
+version: '3'
+
+tasks:
+  CI:
+    deps:
+      - test
+      - check
+
+  test:
+    deps:
+      - test:doc
+      - test:lib
+      - test:sample
+  
+  check:
+    deps:
+      - check:lib
+      - check:examples
+
+  ##### test #####
+
+  test:doc:
+    cmds:
+      - cargo test --doc
+  
+  test:lib:
+    cmds:
+      - cargo test --lib
+
+  test:sample:
+    dir: sample
+    cmds:
+      - cargo run
+
+  ##### check #####
+
+  check:lib:
+    cmds:
+      - cargo check
+  
+  check:examples:
+    dir: serdev
+    cmds:
+      - cargo check --examples

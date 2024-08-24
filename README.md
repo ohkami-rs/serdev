@@ -5,7 +5,7 @@
 
 <br>
 
-- Just a wrapper of serde and 100% serde(derive) compatible
+- Just a wrapper of serde_derive and 100% compatible
 - Validation on deserializing with `#[serde(validate = "function")]`
 
 ## Example
@@ -30,19 +30,19 @@ impl Point {
 }
 
 fn main() {
-    let p = serde_json::from_str::<Point>(
-        r#"{"x":1,"y":2}"#
-    );
+    let point = serde_json::from_str::<Point>(r#"
+        { "x" : 1, "y" : 2 }
+    "#).unwrap();
 
-    // Prints p = Ok(Point { x: 1, y: 2 })
-    println!("p = {:?}", p);
+    // Prints point = Point { x: 1, y: 2 }
+    println!("point = {point:?}");
 
-    let p = serde_json::from_str::<Point>(
-        r#"{"x":-10,"y":2}"#
-    );
+    let error = serde_json::from_str::<Point>(r#"
+        { "x" : -10, "y" : 2 }
+    "#).unwrap_err();
 
-    // Prints p = Err(Error("x and y must not be negative", line: 0, column: 0))
-    println!("p = {:?}", p);
+    // Prints error = x and y must not be negative
+    println!("error = {error}");
 }
 ```
 
