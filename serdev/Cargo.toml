@@ -9,8 +9,8 @@ repository    = "https://github.com/kana-rus/serdev"
 readme        = "../README.md"
 license       = "MIT"
 description   = "Serde with validation"
-keywords      = ["serde", "validation", "serialization", "no_std"]
-categories    = ["encoding", "no-std", "no-std::no-alloc"]
+keywords      = ["serde", "validation", "serialization"]
+categories    = ["encoding", "rust-patterns"]
 
 [dependencies]
 serdev_derive = { version = "=0.1.0", path = "../serdev_derive" }

@@ -1,6 +1,6 @@
 use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote, ToTokens};
-use syn::{parse::Parse, punctuated::Punctuated, token, Attribute, Error, Generics, Ident, Item, ItemEnum, ItemStruct, LitStr};
+use syn::{parse::Parse, punctuated::Punctuated, token, Attribute, Error, Generics, Ident, Item, ItemEnum, ItemStruct, LitStr, WhereClause, WherePredicate};
 
 
 #[derive(Clone)]
@@ -77,11 +77,63 @@ struct Validation {
 }
 impl Parse for Validation {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        Ok(Self {
-            _validation: input.parse()?,
-            _equal:      input.parse()?,
-            function:    input.parse()?,
-        })
+        let _validation = input.parse()?;
+        if _validation != "validation" {
+            return Err(Error::new(Span::call_site(), "expected `validation`"))
+        }
+
+        let _equal      = input.parse()?;
+        let function    = input.parse()?;
+
+        Ok(Self { _validation, _equal, function })
+    }
+}
+
+struct Bound {
+    _bound:      Ident,
+    _equal:      Option<token::Eq>,
+    _paren:      Option<token::Paren>,
+    always:      Option<LitStr>,
+    serialize:   Option<LitStr>,
+    #[allow(unused)]
+    deserialize: Option<LitStr>,
+}
+impl Parse for Bound {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let _bound = input.parse()?;
+        if _bound != "bound" {
+            return Err(Error::new(Span::call_site(), "expected `bound`"))
+        }
+
+        let mut _equal      = None;
+        let mut _paren      = None;
+        let mut serialize   = None;
+        let mut deserialize = None;
+        let mut always      = None;
+
+        if input.peek(token::Eq) {
+            _equal = Some(input.parse()?);
+            always = Some(input.parse()?);
+
+        } else if input.peek(token::Paren) {
+            let buf; syn::parenthesized!(buf in input);
+            while buf.peek(syn::Ident) {
+                let when: Ident  = buf.parse()?;
+                let _: token::Eq = buf.parse()?;
+                if when == "serialize" {
+                    serialize   = Some(buf.parse()?);
+                } else if when == "deserialize" {
+                    deserialize = Some(buf.parse()?);
+                }
+
+                if buf.peek(token::Comma) {buf.parse::<token::Comma>()?;}
+            }
+
+        } else {
+            return Err(Error::new(Span::call_site(), "expected `bound = ...` or `bound(...)`"))
+        }
+
+        Ok(Self { _bound, _equal, _paren, serialize, deserialize, always })
     }
 }
 
@@ -103,6 +155,27 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let mut serde_directives = target.remove_serde_directives()?;
+
+    let mut where_clause = where_clause.map(ToOwned::to_owned);
+    if let Some(bound_position) = serde_directives.iter().position(
+        |d| d.to_string().starts_with("bound")
+    ) {
+        let bound = serde_directives[bound_position].clone();
+        let bound = syn::parse2::<Bound>(bound)?;
+        if let Some(serialize_bound) = bound.always.or(bound.serialize) {
+            let predicates = serialize_bound.value()
+                .split(',')
+                .map(syn::parse_str::<WherePredicate>)
+                .collect::<syn::Result<Punctuated<WherePredicate, token::Comma>>>()?;
+            match &mut where_clause {
+                Some(wc) => wc.predicates.extend(predicates),
+                None => where_clause = Some(WhereClause {
+                    where_token: token::Where::default(),
+                    predicates 
+                })
+            }
+        }
+    }
 
     Ok(match serde_directives.iter().position(
         |d| d.to_string().starts_with("validate")
@@ -191,12 +264,12 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
                     for #target_ident #ty_generics
                         #where_clause
                     {
-                        type Error = #__todo__;
+                        type Error = ::std::box::Box<dyn ::std::fmt::Display>;
 
                         #[inline]
                         fn try_from(proxy: #proxy_ident #ty_generics) -> ::core::result::Result<Self, Self::Error> {
                             let this = unsafe {::core::mem::transmute(proxy)};
-                            let _: () = #validation(&this).map_err(|e| #__todo__)?;
+                            let _: () = #validation(&this).map_err(|e| ::std::box::Box::new(e))?;
                             Ok(this)
                         }
                     }
