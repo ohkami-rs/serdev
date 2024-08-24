@@ -8,6 +8,20 @@
 - Just a wrapper of serde_derive and 100% compatible
 - Validation on deserializing with `#[serde(validate = "function")]`
 
+<div align="right">
+    <a href="https://github.com/ohkami-rs/serdev/blob/main/LICENSE" target="_blank">
+        <img alt="License" src="https://img.shields.io/crates/l/ohkami.svg" />
+    </a>
+    <a href="https://github.com/ohkami-rs/serdev/actions" target="_blank">
+        <img alt="CI status" src="https://github.com/ohkami-rs/serdev/actions/workflows/CI.yml/badge.svg"/>
+    </a>
+    <a href="https://crates.io/crates/serdev" target="_blank">
+        <img alt="crates.io" src="https://img.shields.io/crates/v/serdev" />
+    </a>
+</div>
+
+<br>
+
 ## Example
 
 ```rust
