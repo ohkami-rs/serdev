@@ -3,6 +3,7 @@ pub use ::serde::ser::{self, Serialize, Serializer};
 pub use ::serde::de::{self, Deserialize, Deserializer};
 
 #[doc(hidden)]
+#[doc = include_str!("../../README.md")]
 pub mod __private__ {
     pub use serdev_derive::consume;
     pub use ::serde;

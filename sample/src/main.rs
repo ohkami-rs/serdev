@@ -25,6 +25,21 @@ impl VUser {
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
+#[serde(validate(by = "Self::validate", error = "&'static str"))]
+struct EUser {
+    name: String,
+    age:  usize,
+}
+impl EUser {
+    fn validate(&self) -> Result<(), impl std::fmt::Display> {
+        if self.name.is_empty() {
+            return Err("`name` must not be empty")
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
 #[serde(validate = "Self::validate")]
 struct GUser<'n, Name: From<String>+ToString, Age: From<u8>> {
     name:     Name,
@@ -69,6 +84,22 @@ fn main() {
     );
     assert_eq!(
         serde_json::from_str::<VUser>(
+            r#"{"Age":4,"Name":""}"#
+        ).unwrap_err().to_string(),
+        "`name` must not be empty"
+    );
+
+    assert_eq!(
+        serde_json::from_str::<EUser>(
+            r#"{"Age":4,"Name":"ohkami"}"#
+        ).unwrap(),
+        EUser {
+            name: String::from("ohkami"),
+            age:  4
+        }
+    );
+    assert_eq!(
+        serde_json::from_str::<EUser>(
             r#"{"Age":4,"Name":""}"#
         ).unwrap_err().to_string(),
         "`name` must not be empty"

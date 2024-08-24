@@ -10,8 +10,11 @@ readme        = "../README.md"
 license       = "MIT"
 description   = "Serde with validation"
 keywords      = ["serde", "validation", "serialization"]
-categories    = ["encoding", "rust-patterns"]
+categories    = ["encoding", "rust-patterns", "no-std", "no-std::no-alloc"]
 
 [dependencies]
 serdev_derive = { version = "=0.1.0", path = "../serdev_derive" }
 serde         = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json    = "1.0"

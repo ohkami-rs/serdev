@@ -10,7 +10,7 @@ readme        = "../README.md"
 license       = "MIT"
 description   = "Serde with validation"
 keywords      = ["serde", "validation", "serialization"]
-categories    = ["encoding", "rust-patterns"]
+categories    = ["encoding", "rust-patterns", "no-std", "no-std::no-alloc"]
 
 [lib]
 proc-macro = true
