@@ -137,7 +137,7 @@ impl Parse for Bound {
     }
 }
 
-fn serde_attribute_of<T: ToTokens>(directives: impl IntoIterator<Item = T>) -> Attribute {
+fn build_serde_attribute<T: ToTokens>(directives: impl IntoIterator<Item = T>) -> Attribute {
     let directives = directives.into_iter();
     Attribute {
         pound_token:   token::Pound::default(),
@@ -162,6 +162,7 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
     ) {
         let bound = serde_directives[bound_position].clone();
         let bound = syn::parse2::<Bound>(bound)?;
+        
         if let Some(serialize_bound) = bound.always.or(bound.serialize) {
             let predicates = serialize_bound.value()
                 .split(',')
@@ -186,8 +187,8 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
 
             let mut proxy = target.clone();
             *proxy.ident_mut() = format_ident!("__serdev_proxy_Serialize_{}__", target.ident());
-            proxy .attrs_mut().push(serde_attribute_of(serde_directives.clone()));
-            target.attrs_mut().push(serde_attribute_of(serde_directives));
+            proxy .attrs_mut().push(build_serde_attribute(serde_directives.clone()));
+            target.attrs_mut().push(build_serde_attribute(serde_directives));
 
             let proxy_ident  = proxy.ident();
             let target_ident = target.ident();
@@ -196,6 +197,7 @@ pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
                 const _: () = {
                     #[derive(::serdev::__private__::serde::Serialize)]
                     #[serde(crate = "::serdev::__private__::serde")]
+                    #[allow(non_camel_case_types)]
                     #proxy
 
                     impl #impl_generics ::serdev::__private__::serde::Serialize
@@ -244,8 +246,8 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
 
             let mut proxy = target.clone();
             *proxy.ident_mut() = format_ident!("__serdev_proxy_Deserialize_{}__", target.ident());
-            proxy .attrs_mut().push(serde_attribute_of(serde_directives.clone()));
-            target.attrs_mut().push(serde_attribute_of(serde_directives));
+            proxy .attrs_mut().push(build_serde_attribute(serde_directives.clone()));
+            target.attrs_mut().push(build_serde_attribute(serde_directives));
 
             let proxy_ident  = proxy.ident();
             let target_ident = target.ident();
@@ -258,6 +260,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
                 const _: () = {
                     #[derive(::serdev::__private__::serde::Deserialize)]
                     #[serde(crate = "::serdev::__private__::serde")]
+                    #[allow(non_camel_case_types)]
                     #proxy
 
                     impl #impl_generics ::core::convert::TryFrom<#proxy_ident #ty_generics>
