@@ -1,6 +1,6 @@
 use proc_macro2::{Span, TokenStream};
-use quote::ToTokens;
-use syn::{parse::Parse, Attribute, Error, Generics, Ident, Item, ItemEnum, ItemStruct};
+use quote::{format_ident, quote, ToTokens};
+use syn::{parse::Parse, Attribute, Error, Fields, Generics, Ident, Item, ItemEnum, ItemStruct};
 
 
 #[derive(Clone)]
@@ -53,6 +53,61 @@ impl Target {
         match self {
             Self::Enum(e)   => &mut e.ident,
             Self::Struct(s) => &mut s.ident
+        }
+    }
+
+    pub(crate) fn transmute_expr(&self,
+        variable_ident: &'static str,
+        target_ident:   &Ident
+    ) -> TokenStream {
+        let var = Ident::new(variable_ident, Span::call_site());
+
+        fn constructor(fields: &Fields) -> TokenStream {
+            match fields {
+                Fields::Unit => {
+                    quote! {}
+                }
+                Fields::Unnamed(u) => {
+                    let idents = (0..u.unnamed.len()).map(|i| format_ident!("field_{i}"));
+                    quote! {
+                        ( #(#idents),* )
+                    }
+                }
+                Fields::Named(n) => {
+                    let idents = n.named.iter().map(|f| f.ident.as_ref().unwrap());
+                    quote! {
+                        { #(#idents),* }
+                    }
+                }
+            }
+        }
+
+        match self {
+            Self::Struct(s) => {
+                let ident = &s.ident;
+                let constructor = constructor(&s.fields);
+                quote! {{
+                    let #ident #constructor = #var;
+                    #target_ident #constructor
+                }}
+            }
+            Self::Enum(e) => {
+                let ident = &e.ident;
+
+                let arms = e.variants.iter().map(|v| {
+                    let variant = &v.ident;
+                    let fields  = constructor(&v.fields);
+                    quote! {
+                        #ident::#variant #fields => #target_ident::#variant #fields
+                    }
+                });
+
+                quote! {
+                    match #var {
+                        #(#arms),*
+                    }
+                }
+            }
         }
     }
 }

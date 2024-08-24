@@ -1,6 +1,5 @@
-use std::intrinsics::transmute_unchecked;
-
 use serdev::{Serialize, Deserialize};
+
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase", deny_unknown_fields,)]
@@ -11,7 +10,6 @@ struct User {
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
-#[serde(rename_all = "PascalCase", deny_unknown_fields,)]
 #[serde(validate = "Self::validate")]
 struct VUser {
     name: String,
@@ -27,16 +25,15 @@ impl VUser {
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
-#[serde(rename_all = "PascalCase", deny_unknown_fields,)]
 #[serde(validate = "Self::validate")]
-struct GUser<'n, Name, Age> {
+struct GUser<'n, Name: From<String>+ToString, Age: From<u8>> {
     name:     Name,
     age:      Age,
     nickname: Option<&'n str>
 }
-impl<'n, Name, Age> GUser<'n, Name, Age> {
+impl<'n, Name: From<String>+ToString, Age: From<u8>> GUser<'n, Name, Age> {
     fn validate(&self) -> Result<(), impl std::fmt::Display> {
-        if self.name.is_empty() {
+        if self.name.to_string().is_empty() {
             return Err("`name` must not be empty")
         }
         Ok(())
@@ -73,6 +70,33 @@ fn main() {
     assert_eq!(
         serde_json::from_str::<VUser>(
             r#"{"Age":4,"Name":""}"#
+        ).unwrap_err().to_string(),
+        "`name` must not be empty"
+    );
+
+    assert_eq!(
+        serde_json::from_str::<GUser<String, u8>>(
+            r#"{"Age":4,"Name":"ohkami"}"#
+        ).unwrap(),
+        GUser {
+            name:     String::from("ohkami"),
+            age:      4,
+            nickname: None
+        }
+    );
+    assert_eq!(
+        serde_json::from_str::<GUser<String, u8>>(
+            r#"{"Age":4,"Nickname":"wolf","Name":"ohkami"}"#
+        ).unwrap(),
+        GUser {
+            name:     String::from("ohkami"),
+            age:      4,
+            nickname: Some("wolf")
+        }
+    );
+    assert_eq!(
+        serde_json::from_str::<GUser<String, u8>>(
+            r#"{"Age":4,"Nickname":"wolf","Name":""}"#
         ).unwrap_err().to_string(),
         "`name` must not be empty"
     );

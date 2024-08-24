@@ -6,6 +6,6 @@ pub use ::serde::de::{self, Deserialize, Deserializer};
 pub mod __private__ {
     pub use serdev_derive::consume;
     pub use ::serde;
-    pub type DefaultError = ::std::boxed::Box<dyn ::core::fmt::Display>;
-    pub fn default_error(e: impl std::fmt::Display + 'static) -> DefaultError {Box::new(e)}
+    pub type DefaultError = ::std::string::String;
+    pub fn default_error(e: impl std::fmt::Display) -> DefaultError {e.to_string()}
 }

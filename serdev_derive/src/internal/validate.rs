@@ -84,16 +84,14 @@ impl Validate {
         }
         Ok(None)
     }
-}
 
-impl Validate {
     pub(crate) fn function(&self) -> Result<Path, Error> {
         syn::parse_str(&match self {
             Self::Eq(by) => by,
             Self::Paren { by, error:_ } => by
         }.value())
     }
-    
+
     pub(crate) fn error(&self) -> Result<Option<Path>, Error> {
         match self {
             Self::Paren { by:_, error: Some(error) } => syn::parse_str(&error.value()).map(Some),

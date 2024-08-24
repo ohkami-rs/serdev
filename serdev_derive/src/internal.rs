@@ -35,10 +35,13 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
             let target_ident = target.ident();
             let proxy_ident  = proxy.ident();
 
+            let transmute_from_proxy = proxy.transmute_expr("proxy", target_ident);
+
             let proxy_type_lit = LitStr::new(
                 &quote!(#proxy_ident #ty_generics).to_string(),
                 Span::call_site()
             );
+
             let validate_fn = validate.function()?;
             let (error_ty, e_as_error_ty) = match validate.error()? {
                 Some(ty) => (
@@ -65,7 +68,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
 
                         #[inline]
                         fn try_from(proxy: #proxy_ident #ty_generics) -> ::core::result::Result<Self, Self::Error> {
-                            let this = unsafe {::core::mem::transmute(proxy)};
+                            let this = #transmute_from_proxy;
                             let _: () = #validate_fn(&this).map_err(|e| #e_as_error_ty)?;
                             Ok(this)
                         }
