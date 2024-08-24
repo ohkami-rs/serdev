@@ -10,11 +10,14 @@ use syn::{Error, LitStr};
 
 
 pub(super) fn Serialize(input: TokenStream) -> Result<TokenStream, Error> {
+    let mut target = syn::parse2::<Target>(input.clone())?;
+    Validate::take(target.attrs_mut())?;
+
     Ok(quote! {
         #[derive(::serdev::__private__::serde::Serialize)]
         #[serde(crate = "::serdev::__private__::serde")]
         #[::serdev::__private__::consume]
-        #input
+        #target
     })
 }
 
@@ -36,12 +39,12 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
                 &quote!(#proxy_ident #ty_generics).to_string(),
                 Span::call_site()
             );
-            let validate_fn = validate.function().value();
-            let (error_ty, e_as_error_ty) = match validate.error() {
-                Some(ty) => {
-                    let ty = ty.value();
-                    (quote! {#ty}, quote! {e})
-                }
+            let validate_fn = validate.function()?;
+            let (error_ty, e_as_error_ty) = match validate.error()? {
+                Some(ty) => (
+                    quote! {#ty},
+                    quote! {e}
+                ),
                 None => (
                     quote! {::serdev::__private__::DefaultError},
                     quote! {::serdev::__private__::default_error(e)}
