@@ -2,8 +2,6 @@ use serdev::{Serialize, Deserialize};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase", deny_unknown_fields,)]
-#[serde()]
 struct User {
     name: String,
     age:  usize,
@@ -31,7 +29,7 @@ struct EUser {
     age:  usize,
 }
 impl EUser {
-    fn validate(&self) -> Result<(), impl std::fmt::Display> {
+    fn validate(&self) -> Result<(), &'static str> {
         if self.name.is_empty() {
             return Err("`name` must not be empty")
         }
@@ -61,11 +59,11 @@ fn main() {
             name: String::from("serdev"),
             age:  0
         }).unwrap(),
-        r#"{"Name":"serdev","Age":0}"#
+        r#"{"name":"serdev","age":0}"#
     );
     assert_eq!(
         serde_json::from_str::<User>(
-            r#"{"Age":4,"Name":"ohkami"}"#
+            r#"{"age":4,"name":"ohkami"}"#
         ).unwrap(),
         User {
             name: String::from("ohkami"),
@@ -75,7 +73,7 @@ fn main() {
 
     assert_eq!(
         serde_json::from_str::<VUser>(
-            r#"{"Age":4,"Name":"ohkami"}"#
+            r#"{"age":4,"name":"ohkami"}"#
         ).unwrap(),
         VUser {
             name: String::from("ohkami"),
@@ -84,14 +82,14 @@ fn main() {
     );
     assert_eq!(
         serde_json::from_str::<VUser>(
-            r#"{"Age":4,"Name":""}"#
+            r#"{"age":4,"name":""}"#
         ).unwrap_err().to_string(),
         "`name` must not be empty"
     );
 
     assert_eq!(
         serde_json::from_str::<EUser>(
-            r#"{"Age":4,"Name":"ohkami"}"#
+            r#"{"age":4,"name":"ohkami"}"#
         ).unwrap(),
         EUser {
             name: String::from("ohkami"),
@@ -100,14 +98,14 @@ fn main() {
     );
     assert_eq!(
         serde_json::from_str::<EUser>(
-            r#"{"Age":4,"Name":""}"#
+            r#"{"age":4,"name":""}"#
         ).unwrap_err().to_string(),
         "`name` must not be empty"
     );
 
     assert_eq!(
         serde_json::from_str::<GUser<String, u8>>(
-            r#"{"Age":4,"Name":"ohkami"}"#
+            r#"{"age":4,"name":"ohkami"}"#
         ).unwrap(),
         GUser {
             name:     String::from("ohkami"),
@@ -117,7 +115,7 @@ fn main() {
     );
     assert_eq!(
         serde_json::from_str::<GUser<String, u8>>(
-            r#"{"Age":4,"Nickname":"wolf","Name":"ohkami"}"#
+            r#"{"age":4,"nickname":"wolf","name":"ohkami"}"#
         ).unwrap(),
         GUser {
             name:     String::from("ohkami"),
@@ -127,7 +125,7 @@ fn main() {
     );
     assert_eq!(
         serde_json::from_str::<GUser<String, u8>>(
-            r#"{"Age":4,"Nickname":"wolf","Name":""}"#
+            r#"{"age":4,"nickname":"wolf","name":""}"#
         ).unwrap_err().to_string(),
         "`name` must not be empty"
     );

@@ -50,12 +50,11 @@ fn main() {
 
 - `#[serde(validate = "function")]`
 
-  Perform validation by the function just after deserializing finished. The function must be callable as `fn(&self) -> Result<(), impl Display>`.
-Errors are converted to `String` internally and passed to `serde::de::Error::custom`.
+  Perform validation by the function just after deserializing finished. The function must be callable as `fn(&self) -> Result<(), impl Display>`. Errors are converted to `String` internally and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
-  Use given `Type` for validation error instead of `String`. This will be preferred when you need performance even for error cases.
+  Use given `Type` for validation error instead of `String`. This will be preferred when you need performance even for error cases. The function must explicitly return `Result<(), Type>`.
 
 Both `"function"` and `"Type"` accept path like `"crate::utils::validate"`.
 

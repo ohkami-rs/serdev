@@ -29,19 +29,23 @@ impl Parse for Validate {
             let mut by    = None;
             let mut error = None;
             while !buf.is_empty() {
-                if input.peek(token::Comma) {
-                    input.parse::<token::Comma>()?;
-                } else if input.peek(keyword::by) {
-                    input.parse::<keyword::by>()?;
-                    input.parse::<token::Eq>()?;
-                    by = Some(input.parse()?)
-                } else if input.peek(keyword::error) {
-                    input.parse::<keyword::error>()?;
-                    input.parse::<token::Eq>()?;
-                    error = Some(input.parse()?)
+                if buf.peek(token::Comma) {
+                    buf.parse::<token::Comma>()?;
+                } else if buf.peek(keyword::by) {
+                    buf.parse::<keyword::by>()?;
+                    buf.parse::<token::Eq>()?;
+                    by = Some(buf.parse()?)
+                } else if buf.peek(keyword::error) {
+                    buf.parse::<keyword::error>()?;
+                    buf.parse::<token::Eq>()?;
+                    error = Some(buf.parse()?)
                 } else {
-                    let rest = input.parse::<TokenStream>()?;
-                    return Err(Error::new(rest.span(), "expected `by = \"...\"` or `error = \"...\"`"))
+                    let rest = buf.parse::<TokenStream>()?;
+                    if !rest.is_empty() {
+                        return Err(Error::new(rest.span(), "expected `by = \"...\"` or `error = \"...\"`"))
+                    } else {
+                        return Err(Error::new(rest.span(), format!("rest: `{}`", rest.to_string())))
+                    }
                 }
             }
             let by = by.ok_or(Error::new(Span::call_site(), "expected `by = \"...\"`"))?;
@@ -92,7 +96,7 @@ impl Validate {
         }.value())
     }
 
-    pub(crate) fn error(&self) -> Result<Option<Path>, Error> {
+    pub(crate) fn error(&self) -> Result<Option<TokenStream>, Error> {
         match self {
             Self::Paren { by:_, error: Some(error) } => syn::parse_str(&error.value()).map(Some),
             _ => Ok(None)
