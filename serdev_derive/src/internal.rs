@@ -45,7 +45,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
             let validate = syn::parse2::<Validate>(validate)?;
 
             let mut proxy = target.clone();
-            *proxy.ident_mut() = format_ident!("__serdev_proxy_Deserialize_{}__", target.ident());
+            *proxy.ident_mut() = format_ident!("serdev_proxy_{}", target.ident());
             proxy .attrs_mut().push(build_serde_attribute(serde_directives.clone()));
             target.attrs_mut().push(build_serde_attribute(serde_directives));
 
@@ -58,7 +58,8 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
             );
             let validate_fn = validate.function().value();
             let (error_ty, e_as_error_ty) = match validate.error() {
-                Some(ty) => {let ty = ty.value();
+                Some(ty) => {
+                    let ty = ty.value();
                     (quote! {#ty}, quote! {e})
                 }
                 None => (
@@ -74,8 +75,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
                     #[allow(non_camel_case_types)]
                     #proxy
 
-                    impl #impl_generics ::core::convert::TryFrom<#proxy_ident #ty_generics>
-                    for #target_ident #ty_generics
+                    impl #impl_generics ::core::convert::TryFrom<#proxy_ident #ty_generics> for #target_ident #ty_generics
                         #where_clause
                     {
                         type Error = #error_ty;
