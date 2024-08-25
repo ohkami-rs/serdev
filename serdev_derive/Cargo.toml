@@ -8,7 +8,7 @@ homepage      = "https://crates.io/crates/serdev_derive"
 repository    = "https://github.com/kana-rus/serdev_derive"
 readme        = "../README.md"
 license       = "MIT"
-description   = "Serde with validation"
+description   = "Serde with Validation"
 keywords      = ["serde", "validation", "serialization"]
 categories    = ["encoding", "rust-patterns", "no-std", "no-std::no-alloc"]
 
