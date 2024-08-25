@@ -5,7 +5,7 @@
 
 <br>
 
-- Just a wrapper of serde_derive and 100% compatible
+- Just a wrapper of serde, serde_derive and 100% compatible
 - Validation on deserializing with `#[serde(validate = "...")]`
 
 <div align="right">
