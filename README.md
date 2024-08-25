@@ -27,7 +27,8 @@
 
 ```toml
 [dependencies]
-serdev = "0.1"
+serdev     = "0.1"
+serde_json = "1.0"
 ```
 
 ```rust
