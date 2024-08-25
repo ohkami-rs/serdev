@@ -72,7 +72,8 @@ fn main() {
 - `#[serde(validate(by = "function", error = "Type"))]`
 
   Use given `Type` for validation error without conversion. The function must explicitly return `Result<(), Type>`.\
-  For **no-std** use, this is the only way supported. Also, this will be preferred when you need better performance even in error cases.
+  This may be preferred when you need better performance even in error cases.\
+  For **no-std** use, this is the only way supported.
 
 Both `"function"` and `"Type"` accept path like `"crate::utils::validate"`.
 
