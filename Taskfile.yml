@@ -21,11 +21,11 @@ tasks:
 
   test:doc:
     cmds:
-      - cargo test --doc
+      - cargo test --doc --features DEBUG
   
   test:lib:
     cmds:
-      - cargo test --lib
+      - cargo test --lib --features DEBUG
 
   test:sample:
     dir: sample

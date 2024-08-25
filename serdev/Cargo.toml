@@ -19,3 +19,10 @@ serde         = { version = "1", features = ["derive"] }
 [dev-dependencies]
 serde_json = { version = "1.0" }
 validator  = { version = "0.16", features = ["derive"] }
+
+[features]
+nightly = []
+DEBUG   = []
+
+### DEBUG ###
+#default = ["DEBUG"]
