@@ -6,7 +6,7 @@
 <br>
 
 - Just a wrapper of serde_derive and 100% compatible
-- Validation on deserializing with `#[serde(validate = "function")]`
+- Validation on deserializing with `#[serde(validate = "...")]`
 
 <div align="right">
     <a href="https://github.com/ohkami-rs/serdev/blob/main/LICENSE" target="_blank">
@@ -21,6 +21,7 @@
 </div>
 
 <br>
+
 
 ## Example
 
@@ -60,17 +61,21 @@ fn main() {
 }
 ```
 
+
 ## Attribute
 
 - `#[serde(validate = "function")]`
 
-  Perform validation by the function just after deserializing finished. The function must be callable as `fn(&self) -> Result<(), impl Display>`. Errors are converted to `String` internally and passed to `serde::de::Error::custom`.
+  Perform validation by the function just after deserializing finished. The function must be callable as `fn(&self) -> Result<(), impl Display>`.\
+  Errors are converted to `String` internally and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
-  Use given `Type` for validation error instead of `String`. This will be preferred when you need performance even for error cases. The function must explicitly return `Result<(), Type>`.
+  Use given `Type` for validation error without conversion. The function must explicitly return `Result<(), Type>`.\
+  For **no-std** use, this is the only way supported. Also, this will be preferred when you need better performance even in error cases.
 
 Both `"function"` and `"Type"` accept path like `"crate::utils::validate"`.
+
 
 ## License
 
