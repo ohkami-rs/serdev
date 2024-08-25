@@ -1,4 +1,4 @@
-#![doc = include_str!("../../README.md")]
+#![cfg_attr(feature="DEBUG", doc = include_str!("../../README.md"))]
 
 pub use serdev_derive::{Serialize, Deserialize};
 pub use ::serde::ser::{self, Serialize, Serializer};
