@@ -25,6 +25,12 @@
 
 ## Example
 
+```toml
+[dependencies]
+serdev     = "0.1"
+serde_json = "1.0"
+```
+
 ```rust
 use serdev::Deserialize;
 
@@ -67,12 +73,12 @@ fn main() {
 - `#[serde(validate = "function")]`
 
   Perform validation by the function just after deserializing finished. The function must be callable as `fn(&self) -> Result<(), impl Display>`.\
-  Errors are converted to `String` internally and passed to `serde::de::Error::custom`.
+  Currently, errors are converted to `String` internally and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
   Use given `Type` for validation error without conversion. The function must explicitly return `Result<(), Type>`.\
-  This may be preferred when you need better performance even in error cases.\
+  This may be preferred when you need better performance _even in error cases_.\
   For **no-std** use, this is the only way supported.
 
 Both `"function"` and `"Type"` accept path like `"crate::utils::validate"`.
