@@ -29,17 +29,23 @@ impl ToTokens for Target {
 }
 
 impl Target {
-    pub(crate) fn attrs_mut(&mut self) -> &mut Vec<Attribute> {
-        match self {
-            Self::Enum(e)   => &mut e.attrs,
-            Self::Struct(s) => &mut s.attrs
-        }
-    }
-
     pub(crate) fn generics(&self) -> &Generics {
         match self {
             Self::Enum(e)   => &e.generics,
             Self::Struct(s) => &s.generics
+        }
+    }
+
+    pub(crate) fn attrs(&self) -> &[Attribute] {
+        match self {
+            Self::Enum(e)   => &e.attrs,
+            Self::Struct(s) => &s.attrs
+        }
+    }
+    pub(crate) fn attrs_mut(&mut self) -> &mut Vec<Attribute> {
+        match self {
+            Self::Enum(e)   => &mut e.attrs,
+            Self::Struct(s) => &mut s.attrs
         }
     }
 
@@ -54,6 +60,30 @@ impl Target {
             Self::Enum(e)   => &mut e.ident,
             Self::Struct(s) => &mut s.ident
         }
+    }
+
+    pub(crate) fn create_proxy(&self, name: Ident) -> Self {
+        let mut proxy = self.clone();
+
+        *proxy.ident_mut() = name;
+
+        *proxy.attrs_mut() = proxy.attrs().iter()
+            .filter(|a| a.path().get_ident().is_some_and(|i| i == "serde"))
+            .cloned().collect();
+        match &mut proxy {
+            Self::Struct(s) => for field in &mut s.fields {
+                field.attrs = field.attrs.iter()
+                    .filter(|a| a.path().get_ident().is_some_and(|i| i == "serde"))
+                    .cloned().collect();
+            }
+            Self::Enum(e) => for variant in  &mut e.variants {
+                variant.attrs = variant.attrs.iter()
+                    .filter(|a| a.path().get_ident().is_some_and(|i| i == "serde"))
+                    .cloned().collect();
+            }
+        }
+
+        proxy
     }
 
     pub(crate) fn transmute_expr(&self,

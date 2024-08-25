@@ -77,7 +77,7 @@ fn main() {
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
-  Use given `Type` for validation error without conversion. The function must explicitly return `Result<(), Type>`.\
+  Use given `Type` for validation error without internal conversion. The function must explicitly return `Result<(), Type>`.\
   This may be preferred when you need better performance _even in error cases_.\
   For **no-std** use, this is the only way supported.
 

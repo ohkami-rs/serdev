@@ -29,8 +29,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
 
     Ok(match Validate::take(target.attrs_mut())? {
         Some(validate) => {
-            let mut proxy = target.clone();
-            *proxy.ident_mut() = format_ident!("serdev_proxy_{}", target.ident());
+            let proxy = target.create_proxy(format_ident!("serdev_proxy_{}", target.ident()));
 
             let target_ident = target.ident();
             let proxy_ident  = proxy.ident();
