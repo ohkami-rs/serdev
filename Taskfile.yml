@@ -10,7 +10,7 @@ tasks:
     deps:
       - test:doc
       - test:lib
-      - test:sample
+      - test:examples
   
   check:
     deps:
@@ -27,10 +27,10 @@ tasks:
     cmds:
       - cargo test --lib --features DEBUG
 
-  test:sample:
-    dir: sample
+  test:examples:
+    dir: examples
     cmds:
-      - cargo run
+      - cargo test --examples
 
   ##### check #####
 
@@ -39,6 +39,6 @@ tasks:
       - cargo check
   
   check:examples:
-    dir: serdev
+    dir: examples
     cmds:
       - cargo check --examples
