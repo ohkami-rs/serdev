@@ -1,0 +1,9 @@
+[package]
+name    = "examples"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serdev     = { path = "../serdev" }
+serde_json = { version = "1" }
+validator  = { version = "0.16", features = ["derive"] }

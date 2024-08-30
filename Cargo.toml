@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
 members  = ["serdev", "serdev_derive"]
-exclude  = ["sample"]
+exclude  = ["examples"]

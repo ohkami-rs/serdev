@@ -1,8 +1,0 @@
-[package]
-name    = "sample"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-serdev     = { path = "../serdev" }
-serde_json = { version = "1" }
