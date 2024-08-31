@@ -31,9 +31,9 @@ serde_json = "1.0"
 ```
 
 ```rust
-use serdev::Deserialize;
+use serdev::{Serialize, Deserialize};
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(validate = "Self::validate")]
 struct Point {
     x: i32,
