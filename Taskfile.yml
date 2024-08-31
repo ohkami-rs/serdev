@@ -44,7 +44,9 @@ tasks:
   test:examples:
     dir: examples
     cmds:
-      - cargo test --examples
+      - cargo run --example readme
+      - cargo run --example validator
+      - cargo run --example various_users
 
   ##### check #####
 
