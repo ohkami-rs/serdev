@@ -9,8 +9,8 @@ struct Point {
 
 impl Point {
     fn validate(&self) -> Result<(), impl std::fmt::Display> {
-        if self.x < 0 || self.y < 0 {
-            return Err("x and y must not be negative")
+        if self.x * self.y > 100 {
+            return Err("x * y must not exceed 100")
         }
         Ok(())
     }
@@ -25,9 +25,9 @@ fn main() {
     println!("point = {point:?}");
 
     let error = serde_json::from_str::<Point>(r#"
-        { "x" : -10, "y" : 2 }
+        { "x" : 10, "y" : 20 }
     "#).unwrap_err();
 
-    // Prints error = x and y must not be negative
+    // Prints error = x * y must not exceed 100
     println!("error = {error}");
 }
