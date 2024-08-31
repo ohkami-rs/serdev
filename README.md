@@ -1,12 +1,12 @@
 <div align="center">
     <h1>SerdeV</h1>
-    SerdeV - <a href="https://github.com/serde-rs/serde" target="_blank">Serde</a> with Validation
+    SerdeV - Serde with Validation
 </div>
 
 <br>
 
-- Just a wrapper of serde, serde_derive and 100% compatible
-- Auto validation in deserialization by `#[serde(validate = "...")]`
+- Just a wrapper of <a href="https://github.com/serde-rs/serde" target="_blank">Serde</a> and 100% compatible
+- Automatic validation in deserialization by `#[serde(validate = "...")]`
 
 <div align="right">
     <a href="https://github.com/ohkami-rs/serdev/blob/main/LICENSE" target="_blank">
@@ -73,8 +73,8 @@ Of course, you can use it in combination with some validation tools like <a href
 
 - `#[serde(validate = "function")]`
 
-  Perform validation by the function just after deserializing finished. The `function` must be callable as `fn(&self) -> Result<(), impl Display>`.\
-  Currently, errors are converted to `String` internally and passed to `serde::de::Error::custom`.
+  Automatically validate by the `function` in deserialization. The `function` must be callable as `fn(&self) -> Result<(), impl Display>`.\
+  Errors are converted to a `String` internally and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
