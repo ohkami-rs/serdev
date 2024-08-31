@@ -5,19 +5,31 @@ tasks:
     deps:
       - test
       - check
+      - bench-dryrun
+
+  CI:nobench:
+    deps:
+      - test
+      - check
 
   test:
     deps:
       - test:doc
       - test:lib
       - test:examples
-      - test:benches
   
   check:
     deps:
       - check:lib
       - check:examples
-      - check:benches
+  
+  bench:
+    deps:
+      - bench:all
+
+  bench-dryrun:
+    deps:
+      - bench:dryrun
 
   ##### test #####
 
@@ -34,10 +46,6 @@ tasks:
     cmds:
       - cargo test --examples
 
-  test:benches:
-    cmds:
-      - cargo test --benches
-
   ##### check #####
 
   check:lib:
@@ -49,6 +57,12 @@ tasks:
     cmds:
       - cargo check --examples
 
-  check:benches:
+  ##### bench #####
+
+  bench:all:
     cmds:
-      - cargo check --benches
+      - cargo bench
+
+  bench:dryrun:
+    cmds:
+      - cargo bench --no-run
