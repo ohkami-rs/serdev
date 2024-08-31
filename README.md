@@ -6,7 +6,7 @@
 <br>
 
 - Just a wrapper of serde, serde_derive and 100% compatible
-- Validation on deserializing with `#[serde(validate = "...")]`
+- Auto validation in deserialization by `#[serde(validate = "...")]`
 
 <div align="right">
     <a href="https://github.com/ohkami-rs/serdev/blob/main/LICENSE" target="_blank">
@@ -21,7 +21,6 @@
 </div>
 
 <br>
-
 
 ## Example
 
@@ -67,17 +66,19 @@ fn main() {
 }
 ```
 
+Of course, you can use it in combination with some validation tools like <a href="https://crates.io/crates/validator" target="_blank">validator</a>! ( <a href="https://github.com/ohkami-rs/serdev/blob/main/examples/examples/validator.rs" target="_blank">full example</a> )
+
 
 ## Attribute
 
 - `#[serde(validate = "function")]`
 
-  Perform validation by the function just after deserializing finished. The function must be callable as `fn(&self) -> Result<(), impl Display>`.\
+  Perform validation by the function just after deserializing finished. The `function` must be callable as `fn(&self) -> Result<(), impl Display>`.\
   Currently, errors are converted to `String` internally and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
-  Use given `Type` for validation error without internal conversion. The function must explicitly return `Result<(), Type>`.\
+  Using given `Type` for validation error without internal conversion. The `function` must explicitly return `Result<(), Type>`.\
   This may be preferred when you need better performance _even in error cases_.\
   For **no-std** use, this is the only way supported.
 
