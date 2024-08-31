@@ -5,8 +5,9 @@
 
 <br>
 
-- Just a wrapper of <a href="https://github.com/serde-rs/serde" target="_blank">Serde</a> and 100% compatible
-- Automatic validation in deserialization by `#[serde(validate = "...")]`
+- Just a wrapper of <a href="https://github.com/serde-rs/serde" target="_blank">Serde</a> and 100% compatible.
+- Automatic validation in deserialization by `#[serde(validate = "...")]`,\
+  no boilerplate.
 
 <div align="right">
     <a href="https://github.com/ohkami-rs/serdev/blob/main/LICENSE" target="_blank">
@@ -20,7 +21,6 @@
     </a>
 </div>
 
-<br>
 
 ## Example
 
