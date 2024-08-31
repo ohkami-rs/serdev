@@ -17,8 +17,8 @@ serdev_derive = { version = "=0.1.0", path = "../serdev_derive" }
 serde         = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
-serde_json = { version = "1.0" }
-validator  = { version = "0.16", features = ["derive"] }
+serde_json = "1.0" # for README doc test
+rand       = "0.8" # for bench
 
 [features]
 nightly = []

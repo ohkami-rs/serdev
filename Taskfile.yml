@@ -5,6 +5,12 @@ tasks:
     deps:
       - test
       - check
+      - bench-dryrun
+
+  CI:nobench:
+    deps:
+      - test
+      - check
 
   test:
     deps:
@@ -16,6 +22,14 @@ tasks:
     deps:
       - check:lib
       - check:examples
+  
+  bench:
+    deps:
+      - bench:all
+
+  bench-dryrun:
+    deps:
+      - bench:dryrun
 
   ##### test #####
 
@@ -42,3 +56,13 @@ tasks:
     dir: examples
     cmds:
       - cargo check --examples
+
+  ##### bench #####
+
+  bench:all:
+    cmds:
+      - cargo bench
+
+  bench:dryrun:
+    cmds:
+      - cargo bench --no-run

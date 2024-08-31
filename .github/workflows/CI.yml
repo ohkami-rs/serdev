@@ -9,17 +9,21 @@ jobs:
   CI:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        toolchain: ['stable', 'nightly']
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.toolchain }}
           profile:   minimal
           override:  true
 
       - name: Run tasks
         run:  |
           sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-          task CI
+          ${{ matrix.toolchain == 'nightly' && 'task CI' || 'task CI:nobench' }}
         
