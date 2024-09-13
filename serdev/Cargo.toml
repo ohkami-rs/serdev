@@ -1,6 +1,6 @@
 [package]
 name          = "serdev"
-version       = "0.1.0"
+version       = "0.2.0"
 edition       = "2021"
 authors       = ["kanarus <kanarus786@gmail.com>"]
 documentation = "https://docs.rs/serdev"
@@ -13,7 +13,7 @@ keywords      = ["serde", "validation", "serialization"]
 categories    = ["encoding", "rust-patterns", "no-std", "no-std::no-alloc"]
 
 [dependencies]
-serdev_derive = { version = "=0.1.0", path = "../serdev_derive" }
+serdev_derive = { version = "=0.2.0", path = "../serdev_derive" }
 serde         = { version = "1", features = ["derive"] }
 
 [dev-dependencies]

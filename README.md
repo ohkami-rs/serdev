@@ -5,8 +5,8 @@
 
 <br>
 
-- Just a wrapper of <a href="https://github.com/serde-rs/serde" target="_blank">Serde</a> and 100% compatible.
-- Automatic validation in deserialization by `#[serde(validate = "...")]`, no boilerplate.
+- Just a wrapper of <a href="https://github.com/serde-rs/serde" target="_blank">Serde</a> and 100% compatible
+- Declarative validation in deserialization by `#[serde(validate = "...")]`
 
 <div align="right">
     <a href="https://github.com/ohkami-rs/serdev/blob/main/LICENSE" target="_blank">
@@ -25,7 +25,7 @@
 
 ```toml
 [dependencies]
-serdev     = "0.1"
+serdev     = "0.2"
 serde_json = "1.0"
 ```
 
@@ -81,7 +81,9 @@ Of course, you can use it in combination with some validation tools like <a href
   This may be preferred when you need better performance _even in error cases_.\
   For **no-std** use, this is the only way supported.
 
-Both `"function"` and `"Type"` accept path like `"crate::utils::validate"`.
+Both `"function"` and `"Type"` accept path like `"crate::util::validate"`.
+
+Additionally, `#[serdev(crate = "path::to::serdev")]` is supported for reexport from another crate.
 
 
 ## License

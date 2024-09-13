@@ -76,8 +76,7 @@ impl Validate {
                                         others.push_str(&directive.to_string());
                                         others.push(',')
                                     }
-                                }
-                                others.pop();
+                                }; others.pop();
                                 others
                             })?
                         });
@@ -85,8 +84,7 @@ impl Validate {
                     }
                 }
             }
-        }
-        Ok(None)
+        }; Ok(None)
     }
 
     pub(crate) fn function(&self) -> Result<Path, Error> {

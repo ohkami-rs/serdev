@@ -1,6 +1,11 @@
+[workspace]
+resolver = "2"
+members  = ["."]
+exclude  = ["reexport"]
+
 [package]
 name    = "examples"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
 
 [dev-dependencies]
