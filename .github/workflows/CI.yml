@@ -14,17 +14,20 @@ jobs:
         toolchain: ['stable', 'nightly']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - uses: actions-rs/toolchain@v1
+      - name: Setup Rust
+        run: |
+          rustup update
+          rustup default ${{ matrix.toolchain }}
+          rustup component add rustfmt clippy
+          
+      - uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
         with:
-          toolchain: ${{ matrix.toolchain }}
-          profile:   minimal
-          override:  true
+          version: 3.45.5
 
       - name: Run tasks
         if: ${{ matrix.toolchain == 'stable' }} # temporary WORKAROUND for link error on nightly
         run:  |
-          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
           ${{ matrix.toolchain == 'nightly' && 'task CI' || 'task CI:nobench' }}
         
