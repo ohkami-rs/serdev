@@ -1,5 +1,5 @@
 use proc_macro2::{Span, TokenStream};
-use syn::{parse::Parse, punctuated::Punctuated, spanned::Spanned, token, Attribute, Error, Ident, LitStr, MacroDelimiter, Meta, MetaList, Path};
+use syn::{parse::Parse, punctuated::Punctuated, spanned::Spanned, token, Attribute, Error, Ident, LitStr, MacroDelimiter, Meta, MetaList, Type, Expr};
 
 
 mod keyword {
@@ -87,14 +87,18 @@ impl Validate {
         }; Ok(None)
     }
 
-    pub(crate) fn function(&self) -> Result<Path, Error> {
-        syn::parse_str(&match self {
+    /// Returns any expression with expectation to be a valid function or closure.
+    /// Invalid expressions will cause an compile error on call site.
+    pub(crate) fn as_fn_expr(&self) -> Result<Expr, Error> {
+        let lit_str = match self {
             Self::Eq(by) => by,
             Self::Paren { by, error:_ } => by
-        }.value())
+        };
+        
+        syn::parse_str(&lit_str.value())
     }
 
-    pub(crate) fn error(&self) -> Result<Option<TokenStream>, Error> {
+    pub(crate) fn as_error_ty(&self) -> Result<Option<Type>, Error> {
         match self {
             Self::Paren { by:_, error: Some(error) } => syn::parse_str(&error.value()).map(Some),
             _ => Ok(None)

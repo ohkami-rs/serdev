@@ -1,6 +1,5 @@
 use serdev::{Serialize, Deserialize};
 
-
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct User {
     name: String,

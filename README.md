@@ -20,8 +20,7 @@
     </a>
 </div>
 
-
-## Example
+## Example ([closure.rs](https://github.com/ohkami-rs/serdev/blob/main/examples/examples/closure.rs))
 
 ```toml
 [dependencies]
@@ -33,19 +32,12 @@ serde_json = "1.0"
 use serdev::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(validate = "Self::validate")]
+#[serde(validate = "|p| (p.x * p.y <= 100)
+    .then_some(())
+    .ok_or(\"x * y must not exceed 100\")")]
 struct Point {
     x: i32,
     y: i32,
-}
-
-impl Point {
-    fn validate(&self) -> Result<(), impl std::fmt::Display> {
-        if self.x * self.y > 100 {
-            return Err("x * y must not exceed 100")
-        }
-        Ok(())
-    }
 }
 
 fn main() {
@@ -65,26 +57,32 @@ fn main() {
 }
 ```
 
-Of course, you can use it in combination with some validation tools like <a href="https://crates.io/crates/validator" target="_blank">validator</a>! ( <a href="https://github.com/ohkami-rs/serdev/blob/main/examples/examples/validator.rs" target="_blank">full example</a> )
-
+Of course, you can use it in combination with some validation tools like [validator](https://crates.io/crates/validator)!
+( working example: [validator.rs](https://github.com/ohkami-rs/serdev/blob/main/examples/examples/validator.rs) )
 
 ## Attribute
 
 - `#[serde(validate = "function")]`
 
-  Automatically validate by the `function` in deserialization. The `function` must be callable as `fn(&self) -> Result<(), impl Display>`.\
+  Automatically validate by the `function` in deserialization. The `function` must be an *expression* that is
+  callable as type `fn(&self) -> Result<(), impl Display>` (of course the error type must be known at compile time).
+  
+  (*expression*: including name or path to a `fn` or a method, an inlined closure as above, or even a block expression or function calling
+  or anything that are evaluated as `fn(&self) -> Result<(), impl Display>`)
+  
   Errors are converted to a `String` internally and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
-  Using given `Type` for validation error without internal conversion. The `function` must explicitly return `Result<(), Type>`.\
+  Using given `Type` for validation error without internal conversion.
+  The `function` signature must explicitly return `Result<(), Type>`.
+  
   This may be preferred when you need better performance _even in error cases_.\
   For **no-std** use, this is the only way supported.
 
-Both `"function"` and `"Type"` accept path like `"crate::util::validate"`.
+Both `"function"` and `"Type"` above accept path like `"crate::util::validate"`.
 
 Additionally, `#[serdev(crate = "path::to::serdev")]` is supported for reexport from another crate.
-
 
 ## License
 

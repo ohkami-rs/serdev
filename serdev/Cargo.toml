@@ -1,19 +1,19 @@
 [package]
 name          = "serdev"
-version       = "0.2.0"
-edition       = "2021"
-authors       = ["kanarus <kanarus786@gmail.com>"]
-documentation = "https://docs.rs/serdev"
-homepage      = "https://crates.io/crates/serdev"
-repository    = "https://github.com/ohkami-rs/serdev"
-readme        = "../README.md"
-license       = "MIT"
 description   = "SerdeV - Serde with Validation"
-keywords      = ["serde", "validation", "serialization"]
-categories    = ["encoding", "rust-patterns", "no-std", "no-std::no-alloc"]
+documentation = "https://docs.rs/serdev"
+version       = { workspace = true }
+edition       = { workspace = true }
+authors       = { workspace = true }
+homepage      = { workspace = true }
+repository    = { workspace = true }
+readme        = { workspace = true }
+keywords      = { workspace = true }
+categories    = { workspace = true }
+license       = { workspace = true }
 
 [dependencies]
-serdev_derive = { version = "=0.2.0", path = "../serdev_derive" }
+serdev_derive = { version = "=0.2.1", path = "../serdev_derive" }
 serde         = { version = "1", features = ["derive"] }
 
 [dev-dependencies]

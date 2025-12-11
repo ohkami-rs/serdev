@@ -63,8 +63,8 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
 
             let proxy_type_lit = litstr(&quote!(#proxy_ident #ty_generics).to_string());
 
-            let validate_fn = validate.function()?;
-            let (error_ty, e_as_error_ty) = match validate.error()? {
+            let validate_fn = validate.as_fn_expr()?;
+            let (error_ty, e_as_error_ty) = match validate.as_error_ty()? {
                 Some(ty) => (
                     quote! {#ty},
                     quote! {e}
@@ -89,9 +89,10 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
 
                         #[inline]
                         fn try_from(proxy: #proxy_ident #ty_generics) -> ::core::result::Result<Self, Self::Error> {
-                            let this = #transmute_from_proxy;
-                            let _: () = #validate_fn(&this).map_err(|e| #e_as_error_ty)?;
-                            Ok(this)
+                            let __this = #transmute_from_proxy;
+                            let __validater: fn(&Self) -> ::core::result::Result<(), _> = #validate_fn;
+                            let _: () = __validater(&__this).map_err(|e| #e_as_error_ty)?;
+                            Ok(__this)
                         }
                     }
 

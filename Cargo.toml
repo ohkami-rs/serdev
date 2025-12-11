@@ -2,3 +2,14 @@
 resolver = "2"
 members  = ["serdev", "serdev_derive"]
 exclude  = ["examples"]
+
+[workspace.package]
+version    = "0.2.1"
+edition    = "2021"
+authors    = ["kanarus <mail@kanarus.dev>"]
+homepage   = "https://crates.io/crates/serdev"
+repository = "https://github.com/ohkami-rs/serdev"
+readme     = "README.md"
+keywords   = ["serde", "validation", "serialization"]
+categories = ["encoding", "rust-patterns", "no-std", "no-std::no-alloc"]
+license    = "MIT"

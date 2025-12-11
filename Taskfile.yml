@@ -44,7 +44,8 @@ tasks:
   test:examples:
     dir: examples
     cmds:
-      - cargo run --example readme
+      - cargo run --example method_path
+      - cargo run --example closure
       - cargo run --example validator
       - cargo run --example various_users
       - cd reexport && cargo run
