@@ -24,7 +24,7 @@ jobs:
           
       - uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
         with:
-          version: 72e25a25fd4456ab787f45996994f0fa905ac294 # v3.45.5
+          version: 3.45.5
 
       - name: Run tasks
         if: ${{ matrix.toolchain == 'stable' }} # temporary WORKAROUND for link error on nightly
