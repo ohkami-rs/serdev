@@ -23,6 +23,7 @@ jobs:
           override:  true
 
       - name: Run tasks
+        if: ${{ matrix.toolchain == 'stable' }} # temporary WORKAROUND for link error on nightly
         run:  |
           sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
           ${{ matrix.toolchain == 'nightly' && 'task CI' || 'task CI:nobench' }}
