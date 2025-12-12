@@ -20,8 +20,8 @@ tasks:
   
   check:
     deps:
-      - check:lib
-      - check:examples
+      - check:fmt
+      - check:clippy
   
   bench:
     deps:
@@ -35,11 +35,11 @@ tasks:
 
   test:doc:
     cmds:
-      - cargo test --doc --features DEBUG
+      - cargo test --doc
   
   test:lib:
     cmds:
-      - cargo test --lib --features DEBUG
+      - cargo test --lib
 
   test:examples:
     dir: examples
@@ -51,16 +51,16 @@ tasks:
       - cd reexport && cargo run
 
   ##### check #####
-
-  check:lib:
-    cmds:
-      - cargo check
   
-  check:examples:
-    dir: examples
+  check:fmt:
     cmds:
-      - cargo check --examples
+      - cargo fmt --all --check
 
+  check:clippy:
+    cmds:
+      - cargo clippy --all-targets -- --deny warnings
+      - cd examples && cargo clippy --examples -- --deny warnings
+  
   ##### bench #####
 
   bench:all:
