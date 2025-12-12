@@ -5,8 +5,9 @@
 
 <br>
 
-- Just a wrapper of <a href="https://github.com/serde-rs/serde" target="_blank">Serde</a> and 100% compatible
-- Declarative validation in deserialization by `#[serde(validate = "...")]`
+- Just a wrapper of [Serde](https://github.com/serde-rs/serde) and 100% compatible,
+- implementing `serde::{Serialize, Deserialize}` for your structs,
+- with providing `#[serde(validate = "...")]` for declarative validation in `#[derive(Deserialize)]`.
 
 <div align="right">
     <a href="https://github.com/ohkami-rs/serdev/blob/main/LICENSE" target="_blank">
