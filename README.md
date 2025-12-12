@@ -24,7 +24,7 @@
 
 ```toml
 [dependencies]
-serdev     = "0.2"
+serdev     = "0.3"
 serde_json = "1.0"
 ```
 
@@ -67,18 +67,17 @@ Of course, you can use it in combination with some validation tools like [valida
   Automatically validate by the `function` in deserialization. The `function` must be an *expression* that is
   callable as type `fn(&self) -> Result<(), impl Display>` (of course the error type must be known at compile time).
   
-  (*expression*: including name or path to a `fn` or a method, an inlined closure as above, or even a block expression or function calling
-  or anything that are evaluated as `fn(&self) -> Result<(), impl Display>`)
+  (*expression*: name or path to a `fn` or a method, an inlined closure as above, or even a block expression or function calling
+  or anything that are finally evaluated as `fn(&self) -> Result<(), impl Display>`)
   
   Errors are converted to a `String` internally and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
-  Using given `Type` for validation error without internal conversion.
+  Using given `Type` for the validation error, without conversion.
   The `function` signature must explicitly return `Result<(), Type>`.
   
-  This may be preferred when you need better performance _even in error cases_.\
-  For **no-std** use, this is the only way supported.
+  This will be preferred in **no-std** use, or, maybe when you need better performance in error cases.
 
 Both `"function"` and `"Type"` above accept path like `"crate::util::validate"`.
 
