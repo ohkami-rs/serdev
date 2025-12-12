@@ -1,7 +1,7 @@
 use serdev::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(validate = "|p| (p.x * p.y <= 100).then_some(()).ok_or(\"x * y must not exceed 100\")")]
+#[serde(validate = r#"|p| (p.x * p.y <= 100).then_some(()).ok_or("x * y must not exceed 100")"#)]
 struct Point {
     x: i32,
     y: i32,

@@ -1,7 +1,7 @@
 use proc_macro2::{Span, TokenStream};
 use syn::{
     Attribute, Error, Expr, Ident, LitStr, MacroDelimiter, Meta, MetaList, Type, parse::Parse,
-    punctuated::Punctuated, spanned::Spanned, token,
+    punctuated::Punctuated, spanned::Spanned, token, parse_quote,
 };
 
 mod keyword {
@@ -95,15 +95,26 @@ impl Validate {
         Ok(None)
     }
 
-    /// Returns any expression with expectation to be a valid function or closure.
-    /// Invalid expressions will cause an compile error on call site.
-    pub(crate) fn as_fn_expr(&self) -> Result<Expr, Error> {
+    pub(crate) fn as_validation_expr_with(&self, target_ident: &Ident) -> Result<Expr, Error> {
         let lit_str = match self {
             Self::Eq(by) => by,
             Self::Paren { by, error: _ } => by,
         };
 
-        syn::parse_str(&lit_str.value())
+        let expr = syn::parse_str::<Expr>(&lit_str.value())?;
+        
+        match expr {
+            Expr::Path(path) => Ok(parse_quote! {
+                #path(&#target_ident)
+            }),
+            // for type annotations for e.g. inlined closure
+            _ => Ok(parse_quote! {
+                {
+                    let __validater: fn(&Self) -> ::core::result::Result<(), _> = #expr;
+                    __validater(&#target_ident)
+                }
+            })
+        }
     }
 
     pub(crate) fn as_error_ty(&self) -> Result<Option<Type>, Error> {

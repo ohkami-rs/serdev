@@ -38,6 +38,7 @@ tasks:
   ##### test #####
 
   test:doc:
+    dir: ./serdev
     cmds:
       - cargo test --doc
   
@@ -48,10 +49,7 @@ tasks:
   test:examples:
     dir: examples
     cmds:
-      - cargo run --example method_path
-      - cargo run --example closure
-      - cargo run --example validator
-      - cargo run --example various_users
+      - for file in `ls ./examples`; do cargo run --example "${file%.*}"; done
       - cd reexport && cargo run
 
   ##### check #####
