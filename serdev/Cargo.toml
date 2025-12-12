@@ -13,7 +13,7 @@ categories    = { workspace = true }
 license       = { workspace = true }
 
 [dependencies]
-serdev_derive = { version = "=0.2.1", path = "../serdev_derive" }
+serdev_derive = { version = "=0.3.0", path = "../serdev_derive" }
 serde         = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
