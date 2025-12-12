@@ -1,16 +1,14 @@
 version: '3'
 
+vars:
+  maybe_nightly: { sh: cargo version | grep -q 'nightly' && echo 'nightly' || echo ''  }
+
 tasks:
   CI:
     deps:
       - test
       - check
       - bench-dryrun
-
-  CI:nobench:
-    deps:
-      - test
-      - check
 
   test:
     deps:
@@ -20,26 +18,32 @@ tasks:
   
   check:
     deps:
-      - check:lib
-      - check:examples
+      - check:fmt
+      - check:clippy
   
   bench:
-    deps:
-      - bench:all
+    status:
+      - '[ "{{.maybe_nightly}}" != "nightly" ]' # skip if not nightly
+    cmds:
+      - task: bench:all
 
   bench-dryrun:
-    deps:
-      - bench:dryrun
+    status:
+      - '[ "{{.maybe_nightly}}" != "nightly" ]' # skip if not nightly
+    cmds:
+      - task: bench:dryrun
+  
+  ###########################################################################
 
   ##### test #####
 
   test:doc:
     cmds:
-      - cargo test --doc --features DEBUG
+      - cargo test --doc
   
   test:lib:
     cmds:
-      - cargo test --lib --features DEBUG
+      - cargo test --lib
 
   test:examples:
     dir: examples
@@ -51,16 +55,24 @@ tasks:
       - cd reexport && cargo run
 
   ##### check #####
-
-  check:lib:
-    cmds:
-      - cargo check
   
-  check:examples:
-    dir: examples
+  check:fmt:
     cmds:
-      - cargo check --examples
+      - cargo fmt --all --check
 
+  check:clippy:
+    vars:
+      targets: # all, but skip benches on non-nightly
+        sh: |
+          if [ {{.maybe_nightly}} = "nightly" ]; then
+            echo "--all-targets"
+          else
+            echo "--lib --tests --examples"
+          fi          
+    cmds:
+      - cargo clippy {{.targets}} -- --deny warnings
+      - cd examples && cargo clippy --examples -- --deny warnings
+  
   ##### bench #####
 
   bench:all:

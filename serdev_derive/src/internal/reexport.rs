@@ -1,6 +1,8 @@
 use proc_macro2::TokenStream;
-use syn::{parse::Parse, punctuated::Punctuated, token, Attribute, Error, LitStr, MacroDelimiter, Meta, MetaList, Path};
-
+use syn::{
+    Attribute, Error, LitStr, MacroDelimiter, Meta, MetaList, Path, parse::Parse,
+    punctuated::Punctuated, token,
+};
 
 pub(crate) struct Reexport {
     path: LitStr,
@@ -22,30 +24,31 @@ impl Reexport {
     pub(crate) fn take(attrs: &mut Vec<Attribute>) -> Result<Option<Self>, Error> {
         for attr in attrs {
             if attr.path().get_ident().is_some_and(|i| i == "serdev") {
-                let directives = attr.parse_args_with(
-                    Punctuated::<TokenStream, token::Comma>::parse_terminated
-                )?;
+                let directives = attr
+                    .parse_args_with(Punctuated::<TokenStream, token::Comma>::parse_terminated)?;
                 for (i, directive) in directives.iter().enumerate() {
                     if directive.to_string().starts_with("crate") {
                         attr.meta = Meta::List(MetaList {
-                            path:      syn::parse_str("serdev")?,
+                            path: syn::parse_str("serdev")?,
                             delimiter: MacroDelimiter::Paren(Default::default()),
-                            tokens:    syn::parse_str(&{
+                            tokens: syn::parse_str(&{
                                 let mut others = String::new();
                                 for (j, directive) in directives.iter().enumerate() {
                                     if j != i {
                                         others.push_str(&directive.to_string());
                                         others.push(',')
                                     }
-                                }; others.pop();
+                                }
+                                others.pop();
                                 others
-                            })?
+                            })?,
                         });
-                        return syn::parse2(directive.clone()).map(Some)
+                        return syn::parse2(directive.clone()).map(Some);
                     }
                 }
             }
-        }; Ok(None)
+        }
+        Ok(None)
     }
 }
 
