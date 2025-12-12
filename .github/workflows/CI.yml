@@ -26,8 +26,6 @@ jobs:
         with:
           version: 3.45.5
 
-      - name: Run tasks
-        if: ${{ matrix.toolchain == 'stable' }} # temporary WORKAROUND for link error on nightly
-        run:  |
-          ${{ matrix.toolchain == 'nightly' && 'task CI' || 'task CI:nobench' }}
+      - name: Run task
+        run: task CI
         
