@@ -64,18 +64,18 @@ Of course, you can use it in combination with some validation tools like [valida
 
 - `#[serde(validate = "function")]`
 
-  Automatically validate by the `function` in deserialization. The `function` must be an *expression* that is
+  Automatically validate the deserialized struct by the `function`. The `function` must be an *expression* that is
   callable as type `fn(&self) -> Result<(), impl Display>` (of course the error type must be known at compile time).
   
-  (*expression*: name or path to a `fn` or a method, an inlined closure as above, or even a block expression or function calling
+  (*expression*: an inlined closure as above, or name/path to a `fn` or a method, or even a block expression or function calling
   or anything that are finally evaluated as `fn(&self) -> Result<(), impl Display>`)
   
-  Errors are converted to a `String` internally and passed to `serde::de::Error::custom`.
+  Errors are internally converted to a `String` and passed to `serde::de::Error::custom`.
 
 - `#[serde(validate(by = "function", error = "Type"))]`
 
   Using given `Type` for the validation error, without conversion.
-  The `function` signature must explicitly return `Result<(), Type>`.
+  The `function` signature must be `fn(&self) -> Result<(), Type>`.
   
   This will be preferred in **no-std** use, or, maybe when you need better performance in error cases.
 
