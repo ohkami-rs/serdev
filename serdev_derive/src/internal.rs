@@ -58,7 +58,7 @@ pub(super) fn Deserialize(input: TokenStream) -> Result<TokenStream, Error> {
 
             let validation_target_ident = format_ident!("__this");
             let validate_expr = validate.as_validation_expr_with(&validation_target_ident)?;
-            
+
             let (error_ty, e_as_error_ty) = match validate.as_error_ty()? {
                 Some(ty) => (quote! {#ty}, quote! {e}),
                 None => (

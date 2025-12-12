@@ -1,7 +1,7 @@
 use proc_macro2::{Span, TokenStream};
 use syn::{
     Attribute, Error, Expr, Ident, LitStr, MacroDelimiter, Meta, MetaList, Type, parse::Parse,
-    punctuated::Punctuated, spanned::Spanned, token, parse_quote,
+    parse_quote, punctuated::Punctuated, spanned::Spanned, token,
 };
 
 mod keyword {
@@ -102,7 +102,7 @@ impl Validate {
         };
 
         let expr = syn::parse_str::<Expr>(&lit_str.value())?;
-        
+
         match expr {
             Expr::Path(path) => Ok(parse_quote! {
                 #path(&#target_ident)
@@ -113,7 +113,7 @@ impl Validate {
                     let __validater: fn(&Self) -> ::core::result::Result<(), _> = #expr;
                     __validater(&#target_ident)
                 }
-            })
+            }),
         }
     }
 
