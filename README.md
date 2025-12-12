@@ -26,7 +26,7 @@
 
 A manual implementation for "Parse, don't validate" without `serdev` will be like:
 
-```rust
+```rust,ignore
 #[derive(serde::Deserialize)]
 struct Point {
     x: i32,
@@ -51,7 +51,7 @@ Such manual implementation may be a trigger of mistakes like using `Point` direc
 
 Or, manual `Deserialize` impl?:
 
-```rust
+```rust,ignore
 struct Point {
     x: i32,
     y: i32
@@ -123,6 +123,9 @@ fn main() {
   (working example: [validator.rs](https://github.com/ohkami-rs/serdev/blob/main/examples/examples/validator.rs))
   
   ```rust
+  use serdev::Deserialize;
+  use validator::{Validate, ValidationError};
+
   #[derive(Deserialize, Debug, PartialEq, Validate)]
   #[serde(validate = "Validate::validate")]
   struct SignupData {
@@ -138,12 +141,23 @@ fn main() {
       #[validate(range(min = 0.0, max = 100.0))]
       height: f32,
   }
+  
+  fn validate_unique_username(username: &str) -> Result<(), ValidationError> {
+      if username == "xXxShad0wxXx" {
+          // the value of the username will automatically be added later
+          return Err(ValidationError::new("terrible_username"));
+      }
+  
+      Ok(())
+  }
   ```
   
 - inlined closure like `|p| if p.x * p.y <= 100 {Ok(())} else {Err("...")}`, not only a method path.
   (working example: [closure.rs](https://github.com/ohkami-rs/serdev/blob/main/examples/examples/closure.rs))
   
   ```rust
+  use serdev::{Serialize, Deserialize};
+
   #[derive(Serialize, Deserialize, Debug)]
   #[serde(validate = r#"|p| (p.x * p.y <= 100).then_some(()).ok_or("x * y must not exceed 100")"#)]
   struct Point {

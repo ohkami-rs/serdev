@@ -1,14 +1,14 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members  = ["."]
 exclude  = ["reexport"]
 
 [package]
 name    = "examples"
 version = "0.0.0"
-edition = "2021"
+edition = "2024"
 
 [dev-dependencies]
 serdev     = { path = "../serdev" }
 serde_json = { version = "1.0" }
-validator  = { version = "0.16", features = ["derive"] }
+validator  = { version = "0.20", features = ["derive"] }

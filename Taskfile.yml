@@ -38,6 +38,7 @@ tasks:
   ##### test #####
 
   test:doc:
+    dir: ./serdev
     cmds:
       - cargo test --doc
   
