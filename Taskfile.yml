@@ -9,8 +9,8 @@ tasks:
       - if [ -d ./target ]; then  find  -regex ".*target\|.*Cargo.lock" -exec rm -rf {} +; fi # clean cache for correctness
     cmds:
       - echo "CLEANUP CHECK" && ls -al
-      - task: __ci__
-  __ci__:
+      - task: ci
+  ci:
     deps:
       - test
       - check
@@ -46,11 +46,12 @@ tasks:
   test:doc:
     dir: ./serdev
     cmds:
-      - cargo test --doc
+      - cargo test --doc --all-features
   
   test:lib:
     cmds:
-      - cargo test --lib
+      - cargo test --lib --no-default-features
+      - cargo test --lib --features derive,
 
   test:examples:
     dir: examples
@@ -74,7 +75,8 @@ tasks:
             echo "--lib --tests --examples"
           fi          
     cmds:
-      - cargo clippy {{.targets}} -- --deny warnings
+      - cargo clippy {{.targets}} --no-default-features -- --deny warnings
+      - cargo clippy {{.targets}} --features derive, -- --deny warnings
       - cd examples && cargo clippy --examples -- --deny warnings
   
   ##### bench #####

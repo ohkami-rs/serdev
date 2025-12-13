@@ -12,9 +12,13 @@ keywords      = { workspace = true }
 categories    = { workspace = true }
 license       = { workspace = true }
 
+[features]
+default = ["derive"] # in most cases, there's no reason to use serdev, instead of serde, without derive...
+derive  = ["dep:serdev_derive", "serde/derive"]
+
 [dependencies]
-serdev_derive = { version = "=0.3.1", path = "../serdev_derive" }
-serde         = { version = "1", features = ["derive"] }
+serdev_derive = { version = "=0.3.2", path = "../serdev_derive", optional = true }
+serde         = { version = "1" }
 
 [dev-dependencies]
 serde_json = "1.0" # for README doc test
