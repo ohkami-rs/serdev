@@ -42,7 +42,7 @@ impl TryFrom<Point> for ValidPoint {
 }
 ```
 
-This is, actually, (almost) exactly what `serdev` does!
+Actually, this is (almost) exactly what `serdev` does!
 
 Such manual implementation may be a trigger of mistakes like using `Point` directly for parsing user's input.
 `serdev` eliminates such kind of mistakes, automatically performing the specified validation.
@@ -67,7 +67,7 @@ Indeed this doesn't cause such misuses, but produces boilerplate... (more and mo
 ---
 
 `#[serde(validate)]` makes, for a struct having complicated conditions, its `Deserialize` itself the valid `parse`r of the struct,
-in a clean way with near-zero boilerplate.
+with near-zero boilerplate.
 
 If you have no pain on this, you may not need `serdev`.
 
