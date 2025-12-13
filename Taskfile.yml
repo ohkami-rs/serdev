@@ -5,6 +5,12 @@ vars:
 
 tasks:
   CI:
+    preconditions:
+      - if [ -d ./target ]; then  find  -regex ".*target\|.*Cargo.lock" -exec rm -rf {} +; fi # clean cache for correctness
+    cmds:
+      - echo "CLEANUP CHECK" && ls -al
+      - task: __ci__
+  __ci__:
     deps:
       - test
       - check
@@ -62,7 +68,7 @@ tasks:
     vars:
       targets: # all, but skip benches on non-nightly
         sh: |
-          if [ {{.maybe_nightly}} = "nightly" ]; then
+          if [ "{{.maybe_nightly}}" = "nightly" ]; then
             echo "--all-targets"
           else
             echo "--lib --tests --examples"
