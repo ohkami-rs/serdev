@@ -77,7 +77,7 @@ If you have no pain on this, you may not need `serdev`.
 
 ```toml
 [dependencies]
-serdev     = "0.3"
+serdev     = { version = "0.3", features = ["derive"] }
 serde_json = "1.0"
 ```
 
