@@ -1,4 +1,4 @@
-use serdev::{Serialize, Deserialize};
+use serdev::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(validate = "Self::validate")]
@@ -10,23 +10,29 @@ struct Point {
 impl Point {
     fn validate(&self) -> Result<(), impl std::fmt::Display> {
         if self.x * self.y > 100 {
-            return Err("x * y must not exceed 100")
+            return Err("x * y must not exceed 100");
         }
         Ok(())
     }
 }
 
 fn main() {
-    let point = serde_json::from_str::<Point>(r#"
+    let point = serde_json::from_str::<Point>(
+        r#"
         { "x" : 1, "y" : 2 }
-    "#).unwrap();
+    "#,
+    )
+    .unwrap();
 
     // Prints point = Point { x: 1, y: 2 }
     println!("point = {point:?}");
 
-    let error = serde_json::from_str::<Point>(r#"
+    let error = serde_json::from_str::<Point>(
+        r#"
         { "x" : 10, "y" : 20 }
-    "#).unwrap_err();
+    "#,
+    )
+    .unwrap_err();
 
     // Prints error = x * y must not exceed 100
     println!("error = {error}");

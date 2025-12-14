@@ -27,7 +27,8 @@ fn validate_unique_username(username: &str) -> Result<(), ValidationError> {
 }
 
 fn main() {
-    let signupdata = serde_json::from_str::<SignupData>(r#"
+    let signupdata = serde_json::from_str::<SignupData>(
+        r#"
         {
             "mail": "serdev@ohkami.rs",
             "site": "https://ohkami.rs",
@@ -35,16 +36,22 @@ fn main() {
             "age": 20,
             "height": 0.0
         }
-    "#).unwrap();
-    assert_eq!(signupdata, SignupData {
-        mail: String::from("serdev@ohkami.rs"),
-        site: String::from("https://ohkami.rs"),
-        first_name: String::from("serdev"),
-        age: 20,
-        height: 0.0
-    });
+    "#,
+    )
+    .unwrap();
+    assert_eq!(
+        signupdata,
+        SignupData {
+            mail: String::from("serdev@ohkami.rs"),
+            site: String::from("https://ohkami.rs"),
+            first_name: String::from("serdev"),
+            age: 20,
+            height: 0.0
+        }
+    );
 
-    let error = serde_json::from_str::<SignupData>(r#"
+    let error = serde_json::from_str::<SignupData>(
+        r#"
         {
             "mail": "serdev@ohkami.rs",
             "site": "https://ohkami.rs",
@@ -52,6 +59,8 @@ fn main() {
             "age": 0,
             "height": 0.0
         }
-    "#).unwrap_err();
+    "#,
+    )
+    .unwrap_err();
     println!("error: {error}");
 }

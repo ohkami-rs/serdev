@@ -12,3 +12,4 @@ edition = "2024"
 serdev     = { path = "../serdev", features = ["derive"] }
 serde_json = { version = "1.0" }
 validator  = { version = "0.20", features = ["derive"] }
+garde      = { version = "0.22", features = ["derive"] }
